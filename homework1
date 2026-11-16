@@ -1,3 +1,7 @@
+import math
+from typing import Union, Optional
+
+# Уровень 2: 4 функции для арифметических операций
 def add(x: float, y: float) -> float:
     return x + y
 
@@ -11,3 +15,193 @@ def divide(x: float, y: float) -> Optional[float]:
     if y == 0:
         return None
     return x / y
+
+# Уровень 3: 1 функция для всех арифметических операций
+def calculate_arithmetic(a: float, b: float, operation: int) -> Optional[float]:
+    if operation == 1:
+        return a + b
+    elif operation == 2:
+        return a - b
+    elif operation == 3:
+        return a * b
+    elif operation == 4:
+        if b == 0:
+            return None
+        return a / b
+    else:
+        return None
+
+# Уровень 4: класс Calculator с аннотацией типов
+class Calculator:
+    def arithmetic(self, a: float, b: float, operation: int) -> Optional[float]:
+        if operation == 1:
+            return a + b
+        elif operation == 2:
+            return a - b
+        elif operation == 3:
+            return a * b
+        elif operation == 4:
+            if b == 0:
+                return None
+            return a / b
+        else:
+            return None
+    
+    def trigonometric(self, angle: float, operation: int) -> Optional[float]:
+        if operation == 5:
+            return math.sin(angle)
+        elif operation == 6:
+            return math.cos(angle)
+        elif operation == 7:
+            return math.tan(angle)
+        else:
+            return None
+
+def main():
+    while True:
+        try:
+            level_input = input('Выберите уровень (1-4) или "q" для выхода: ').strip()
+            if level_input.lower() == 'q':
+                print("Выход из программы")
+                break
+                
+            level = int(level_input)
+            
+            if level == 1:
+                # Уровень 1: без функций, циклов, классов
+                print('Выберите операцию: 1) +, 2) -, 3) *, 4) /')
+                operation = int(input('>>> '))
+                
+                if operation not in [1, 2, 3, 4]:
+                    print('Неверная операция')
+                    continue
+                
+                numbers = input('Введите 2 числа через пробел: ').split()
+                if len(numbers) != 2:
+                    print('Требуется ровно 2 числа')
+                    continue
+                    
+                x = float(numbers[0])
+                y = float(numbers[1])
+                
+                if operation == 1:
+                    result = x + y
+                    print(f"{x} + {y} = {result}")
+                elif operation == 2:
+                    result = x - y
+                    print(f"{x} - {y} = {result}")
+                elif operation == 3:
+                    result = x * y
+                    print(f"{x} * {y} = {result}")
+                elif operation == 4:
+                    if y == 0:
+                        print("Ошибка: деление на ноль")
+                    else:
+                        result = x / y
+                        print(f"{x} / {y} = {result}")
+                    
+            elif level == 2:
+                # Уровень 2: 4 функции
+                print('Выберите операцию: 1) +, 2) -, 3) *, 4) /')
+                operation = int(input('>>> '))
+                
+                if operation not in [1, 2, 3, 4]:
+                    print('Неверная операция')
+                    continue
+                
+                numbers = input('Введите 2 числа через пробел: ').split()
+                if len(numbers) != 2:
+                    print('Требуется ровно 2 числа')
+                    continue
+                    
+                x = float(numbers[0])
+                y = float(numbers[1])
+                
+                if operation == 1:
+                    result = add(x, y)
+                elif operation == 2:
+                    result = subtract(x, y)
+                elif operation == 3:
+                    result = multiply(x, y)
+                elif operation == 4:
+                    result = divide(x, y)
+                
+                if result is None:
+                    print("Ошибка: деление на ноль")
+                else:
+                    operations_symbols = {1: '+', 2: '-', 3: '*', 4: '/'}
+                    print(f"{x} {operations_symbols[operation]} {y} = {result}")
+                    
+            elif level == 3:
+                # Уровень 3: 1 функция
+                print('Выберите операцию: 1) +, 2) -, 3) *, 4) /')
+                operation = int(input('>>> '))
+                
+                if operation not in [1, 2, 3, 4]:
+                    print('Неверная операция')
+                    continue
+                
+                numbers = input('Введите 2 числа через пробел: ').split()
+                if len(numbers) != 2:
+                    print('Требуется ровно 2 числа')
+                    continue
+                    
+                x = float(numbers[0])
+                y = float(numbers[1])
+                
+                result = calculate_arithmetic(x, y, operation)
+                
+                if result is None:
+                    print("Ошибка: деление на ноль")
+                else:
+                    operations_symbols = {1: '+', 2: '-', 3: '*', 4: '/'}
+                    print(f"{x} {operations_symbols[operation]} {y} = {result}")
+                    
+            elif level == 4:
+                # Уровень 4: класс Calculator
+                print('Выберите операцию: 1) +, 2) -, 3) *, 4) /, 5) sin, 6) cos, 7) tan')
+                operation = int(input('>>> '))
+                
+                calc = Calculator()
+                
+                if operation in [1, 2, 3, 4]:
+                    numbers = input('Введите 2 числа через пробел: ').split()
+                    if len(numbers) != 2:
+                        print('Требуется ровно 2 числа')
+                        continue
+                        
+                    x = float(numbers[0])
+                    y = float(numbers[1])
+                    
+                    result = calc.arithmetic(x, y, operation)
+                    
+                    if result is None:
+                        print("Ошибка: деление на ноль")
+                    else:
+                        operations_symbols = {1: '+', 2: '-', 3: '*', 4: '/'}
+                        print(f"{x} {operations_symbols[operation]} {y} = {result}")
+                        
+                elif operation in [5, 6, 7]:
+                    angle = float(input('Введите угол в радианах: '))
+                    
+                    result = calc.trigonometric(angle, operation)
+                    
+                    if result is not None:
+                        operations_names = {5: 'sin', 6: 'cos', 7: 'tan'}
+                        print(f"{operations_names[operation]}({angle}) = {result}")
+                    else:
+                        print("Ошибка вычисления")
+                else:
+                    print('Неверная операция')
+                    
+            else:
+                print('Неверный уровень. Выберите от 1 до 4.')
+                
+        except ValueError:
+            print("Ошибка: введите корректные числовые значения")
+        except KeyboardInterrupt:
+            print("\nПрограмма завершена")
+            break
+
+if __name__ == "__main__":
+    main()
