@@ -1,0 +1,223 @@
+from typing import Union, List, Optional
+
+class StringProcessor:
+    """Класс для обработки строк с различными методами"""
+    
+    @staticmethod
+    def level_1(text: str, method: int) -> str:
+        """Уровень 1: Базовые преобразования регистра"""
+        if method == 1:
+            return text.upper()
+        elif method == 2:
+            return text.lower()
+        elif method == 3:
+            return text.capitalize()
+        else:
+            return "Неверный метод"
+    
+    @staticmethod
+    def level_2(text: str, method: int, x: str = "", y: str = "") -> Union[int, str, None]:
+        """Уровень 2: Поиск и замена в строках"""
+        if method == 1:
+            return text.find(x)
+        elif method == 2:
+            return text.replace(x, y)
+        elif method == 3:
+            return text.count(x)
+        else:
+            return None
+    
+    @staticmethod
+    def level_3(text: str, method: int, separator: str = "") -> Union[List[str], str, None]:
+        """Уровень 3: Разделение и объединение строк"""
+        if method == 1:
+            return text.split(separator) if separator else text.split()
+        elif method == 2:
+            return separator.join(text.split())
+        else:
+            return None
+    
+    @staticmethod
+    def level_4(text: str, method: int) -> Union[bool, str, None]:
+        """Уровень 4: Проверка и очистка строк"""
+        if method == 1:
+            return text.isdigit()
+        elif method == 2:
+            return text.isalpha()
+        elif method == 3:
+            return text.strip()
+        elif method == 4:
+            return text.lstrip()  # lstrip() - удаление пробелов слева
+        elif method == 5:
+            return text.rstrip()  # rstrip() - удаление пробелов справа
+        else:
+            return None
+    
+    @staticmethod
+    def level_5(text: str) -> str:
+        """Уровень 5: Комплексное преобразование строки"""
+        # Убираем пробелы по краям и делаем первую букву заглавной
+        text = text.strip().capitalize()
+        # Заменяем разделители на пробелы
+        text = text.replace(';', ' ')
+        text = text.replace('-', ' ')
+        text = text.replace('+', ' ')
+        # Убираем лишние пробелы
+        words = text.split()
+        return ' '.join(words)
+
+
+def demonstrate_examples():
+    """Демонстрация примеров для каждого уровня"""
+    print("\n" + "="*50)
+    print("ПРИМЕРЫ ДЛЯ КАЖДОГО УРОВНЯ")
+    print("="*50)
+    
+    processor = StringProcessor()
+    
+    # Уровень 1
+    print("\nУровень 1 - Регистр строк:")
+    example_1 = "прИвЕт МИР"
+    print(f"Исходная строка: '{example_1}'")
+    print(f"upper(): '{processor.level_1(example_1, 1)}'")
+    print(f"lower(): '{processor.level_1(example_1, 2)}'")
+    print(f"capitalize(): '{processor.level_1(example_1, 3)}'")
+    
+    # Уровень 2
+    print("\nУровень 2 - Поиск и замена:")
+    example_2 = "Ботать – это круто. Очень круто!"
+    print(f"Исходная строка: '{example_2}'")
+    print(f"find('круто'): {processor.level_2(example_2, 1, 'круто')}")
+    print(f"replace('круто', 'класс'): '{processor.level_2(example_2, 2, 'круто', 'класс')}'")
+    print(f"count('о'): {processor.level_2(example_2, 3, 'о')}")
+    
+    # Уровень 3
+    print("\nУровень 3 - Разделение и объединение:")
+    example_3 = "1,2,3,4,5,6"
+    print(f"Исходная строка: '{example_3}'")
+    print(f"split(','): {processor.level_3(example_3, 1, ',')}")
+    print(f"join(';'): '{processor.level_3(example_3, 2, ';')}'")
+    
+    # Уровень 4
+    print("\nУровень 4 - Проверка и очистка:")
+    examples_4 = ["123456", "abc", "   abc^&*   "]
+    for i, example in enumerate(examples_4, 1):
+        print(f"Строка {i}: '{example}'")
+        print(f"  isdigit(): {processor.level_4(example, 1)}")
+        print(f"  isalpha(): {processor.level_4(example, 2)}")
+        print(f"  strip(): '{processor.level_4(example, 3)}'")
+        print(f"  lstrip(): '{processor.level_4(example, 4)}'")
+        print(f"  rstrip(): '{processor.level_4(example, 5)}'")
+    
+    # Уровень 5
+    print("\nУровень 5 - Комплексное преобразование:")
+    example_5 = " python;IS;AWEsomE;! "
+    print(f"Исходная строка: '{example_5}'")
+    print(f"Результат: '{processor.level_5(example_5)}'")
+
+
+def main():
+    """Основная функция программы"""
+    processor = StringProcessor()
+    
+    print("ДОБРО ПОЖАЛОВАТЬ В СТРОЧНИК!")
+    print("Эта программа демонстрирует различные методы работы со строками.")
+    
+    demonstrate_examples()
+    
+    while True:
+        try:
+            print("\n" + "="*50)
+            print("ВЫБОР УРОВНЯ")
+            print("="*50)
+            print("1 - Регистр строк (upper, lower, capitalize)")
+            print("2 - Поиск и замена (find, replace, count)")
+            print("3 - Разделение и объединение (split, join)")
+            print("4 - Проверка и очистка (isdigit, isalpha, strip, lstrip, rstrip)")
+            print("5 - Комплексное преобразование")
+            print("0 - Выход")
+            
+            choice = input("\nВыберите уровень (0-5): ").strip()
+            
+            if choice == '0':
+                print("До свидания!")
+                break
+            
+            if choice not in ['1', '2', '3', '4', '5']:
+                print("Неверный выбор. Попробуйте снова.")
+                continue
+            
+            level = int(choice)
+            
+            if level == 1:
+                print("\n--- Уровень 1: Регистр строк ---")
+                text = input("Введите строку: ")
+                print("Методы: 1 - upper, 2 - lower, 3 - capitalize")
+                method = int(input("Выберите метод (1-3): "))
+                result = processor.level_1(text, method)
+                print(f"Результат: '{result}'")
+            
+            elif level == 2:
+                print("\n--- Уровень 2: Поиск и замена ---")
+                text = input("Введите строку: ")
+                print("Методы: 1 - find, 2 - replace, 3 - count")
+                method = int(input("Выберите метод (1-3): "))
+                
+                if method == 1:
+                    search_str = input("Введите подстроку для поиска: ")
+                    result = processor.level_2(text, method, search_str)
+                    print(f"Позиция первого вхождения: {result}")
+                elif method == 2:
+                    old_str = input("Введите подстроку для замены: ")
+                    new_str = input("Введите новую подстроку: ")
+                    result = processor.level_2(text, method, old_str, new_str)
+                    print(f"Результат замены: '{result}'")
+                elif method == 3:
+                    count_str = input("Введите подстроку для подсчета: ")
+                    result = processor.level_2(text, method, count_str)
+                    print(f"Количество вхождений: {result}")
+            
+            elif level == 3:
+                print("\n--- Уровень 3: Разделение и объединение ---")
+                text = input("Введите строку: ")
+                print("Методы: 1 - split, 2 - join")
+                method = int(input("Выберите метод (1-2): "))
+                
+                if method == 1:
+                    separator = input("Введите разделитель (Enter для пробела): ")
+                    result = processor.level_3(text, method, separator)
+                    print(f"Разделенная строка: {result}")
+                elif method == 2:
+                    separator = input("Введите разделитель для объединения: ")
+                    result = processor.level_3(text, method, separator)
+                    print(f"Объединенная строка: '{result}'")
+            
+            elif level == 4:
+                print("\n--- Уровень 4: Проверка и очистка ---")
+                text = input("Введите строку: ")
+                print("Методы: 1 - isdigit, 2 - isalpha, 3 - strip, 4 - lstrip, 5 - rstrip")
+                method = int(input("Выберите метод (1-5): "))
+                result = processor.level_4(text, method)
+                
+                if method in [1, 2]:
+                    print(f"Результат проверки: {result}")
+                else:
+                    print(f"Результат очистки: '{result}'")
+            
+            elif level == 5:
+                print("\n--- Уровень 5: Комплексное преобразование ---")
+                text = input("Введите строку для преобразования: ")
+                result = processor.level_5(text)
+                print(f"Преобразованная строка: '{result}'")
+                
+        except ValueError:
+            print("Ошибка: введите корректное числовое значение")
+        except KeyboardInterrupt:
+            print("\n\nПрограмма завершена.")
+            break
+        except Exception as e:
+            print(f"Произошла ошибка: {e}")
+
+
+if __name__ == "__main__":
+    main()
