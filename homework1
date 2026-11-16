@@ -11,13 +11,13 @@ def subtract(x: float, y: float) -> float:
 def multiply(x: float, y: float) -> float:
     return x * y
 
-def divide(x: float, y: float) -> Optional[float]:
+def divide(x: float, y: float):
     if y == 0:
         return None
     return x / y
 
 # Уровень 3: 1 функция для всех арифметических операций
-def calculate_arithmetic(a: float, b: float, operation: int) -> Optional[float]:
+def calculate_arithmetic(a: float, b: float, operation: int):
     if operation == 1:
         return a + b
     elif operation == 2:
@@ -33,7 +33,7 @@ def calculate_arithmetic(a: float, b: float, operation: int) -> Optional[float]:
 
 # Уровень 4: класс Calculator с аннотацией типов
 class Calculator:
-    def arithmetic(self, a: float, b: float, operation: int) -> Optional[float]:
+    def arithmetic(self, a: float, b: float, operation: int):
         if operation == 1:
             return a + b
         elif operation == 2:
@@ -47,7 +47,7 @@ class Calculator:
         else:
             return None
     
-    def trigonometric(self, angle: float, operation: int) -> Optional[float]:
+    def trigonometric(self, angle: float, operation: int):
         if operation == 5:
             return math.sin(angle)
         elif operation == 6:
