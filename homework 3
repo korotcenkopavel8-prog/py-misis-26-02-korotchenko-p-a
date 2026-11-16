@@ -1,0 +1,570 @@
+
+import random
+from copy import copy, deepcopy
+
+# ЛАБИРИНТ СОКРОВИЩ
+
+SIZE = 6
+
+# Предметы игрока
+inventory = [
+    {"name": "Меч", "damage": 15, "mana": 0, "type": "оружие"},
+    {"name": "Зелье здоровья", "heal": 30, "type": "зелье"}
+]
+
+health_points = 100
+max_health = 100
+
+player_x = 0
+player_y = 0
+
+game_over = False
+has_key = False
+
+# СОЗДАНИЕ ЛАБИРИНТА
+
+room_types = [
+    "empty", "empty", "empty",
+    "chest", "monster", "trap",
+    "portal"
+]
+
+maze = []
+
+for y in range(SIZE):
+    row = []
+    for x in range(SIZE):
+        room = {
+            "x": x,
+            "y": y,
+            "type": random.choice(room_types),
+            "visited": False,
+            "items": [],
+            "portal_active": True
+        }
+        row.append(room)
+    maze.append(row)
+
+# Специальные комнаты
+maze[0][0]["type"] = "empty"
+maze[4][4]["type"] = "key"
+maze[5][5]["type"] = "exit"
+maze[1][3]["type"] = "portal"
+maze[4][1]["type"] = "portal"
+maze[2][2]["type"] = "chest"
+maze[3][3]["type"] = "monster"
+maze[1][5]["type"] = "trap"
+
+# Наполнение сундуков
+for row in maze:
+    for room in row:
+        if room["type"] == "chest":
+            if random.choice([True, False]):
+                room["items"] = [
+                    {"name": "Зелье здоровья", "heal": 30,
+                     "type": "зелье"},
+                    {"name": "Мана", "type": "материал"}
+                ]
+            else:
+                room["items"] = []
+
+# Два отдельных списка:
+# все комнаты и комнаты, посещённые игроком
+rooms = [room for row in maze for room in row]
+visited_rooms = []
+
+# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+
+def current_room():
+    return maze[player_y][player_x]
+
+
+def show_status():
+    print("\nИГРОК")
+    print("Координаты:", (player_x, player_y))
+    print("Здоровье:", health_points, "/", max_health)
+    print("Ключ:", "Есть" if has_key else "Нет")
+    print("\n")
+
+
+def show_map():
+    print("\nКАРТА ЛАБИРИНТА")
+    print("P - игрок, ? - неизвестная комната")
+    print("V - посещённая комната, E - выход")
+
+    for y in range(SIZE):
+        for x in range(SIZE):
+            room = maze[y][x]
+
+            if (x, y) == (player_x, player_y):
+                symbol = " P "
+            elif room["visited"]:
+                if room["type"] == "exit":
+                    symbol = " E "
+                else:
+                    symbol = " V "
+            else:
+                symbol = " ? "
+
+            print(symbol, end="")
+
+        print()
+    print()
+
+
+def show_room():
+    room = current_room()
+
+    print("\nВы находитесь в комнате:", (player_x, player_y))
+
+    if room["type"] == "empty":
+        print("Здесь пусто.")
+
+    elif room["type"] == "chest":
+        print("Вы нашли сундук!")
+
+    elif room["type"] == "monster":
+        print("В комнате находится монстр!")
+
+    elif room["type"] == "trap":
+        print("Вы попали в комнату с ловушкой!")
+
+    elif room["type"] == "key":
+        print("Вы нашли комнату с ключом!")
+
+    elif room["type"] == "portal":
+        print("Вы обнаружили портал!")
+
+    elif room["type"] == "exit":
+        print("Вы нашли выход из лабиринта!")
+
+
+# ИНВЕНТАРЬ
+
+def show_inventory():
+    print("\nИНВЕНТАРЬ")
+
+    if not inventory:
+        print("Инвентарь пуст.")
+    else:
+        # LIST COMPREHENSION
+        # Создаём новый список названий предметов
+        names = [item["name"] for item in inventory]
+
+        for i, item in enumerate(inventory):
+            print(i + 1, ".", item)
+
+        print("Предметы:", names)
+
+    print("\n")
+
+
+def add_item(item):
+    # APPEND — добавление одного предмета
+    inventory.append(item)
+    print("Предмет добавлен:", item["name"])
+
+
+def add_many_items(items):
+    # EXTEND — добавление нескольких предметов
+    inventory.extend(items)
+    print("В инвентарь добавлено несколько предметов.")
+
+
+def drop_item():
+    show_inventory()
+
+    if not inventory:
+        return
+
+    try:
+        number = int(input("Номер предмета для выбрасывания: ")) - 1
+
+        if 0 <= number < len(inventory):
+            # REMOVE — удаление конкретного предмета
+            item = inventory[number]
+            inventory.remove(item)
+            print("Вы выбросили:", item["name"])
+        else:
+            print("Неверный номер.")
+
+    except ValueError:
+        print("Введите число.")
+
+
+def drop_last_item():
+    if inventory:
+        # POP — удаление последнего предмета
+        item = inventory.pop()
+        print("Вы выбросили последний предмет:", item["name"])
+    else:
+        print("Инвентарь пуст.")
+
+
+def sort_inventory():
+    print("\n1. Сортировать по названию")
+    print("2. Сортировать по урону")
+    print("3. Обратный порядок")
+
+    choice = input("Выберите сортировку: ")
+
+    if choice == "1":
+        # SORT — сортировка по названию
+        inventory.sort(key=lambda item: item["name"].lower())
+
+    elif choice == "2":
+        # SORT — сортировка по урону
+        inventory.sort(
+            key=lambda item: item.get("damage", 0),
+            reverse=True
+        )
+
+    elif choice == "3":
+        # REVERSE — изменение порядка списка
+        inventory.reverse()
+
+    print("Инвентарь отсортирован.")
+    show_inventory()
+
+
+def find_key():
+    # IN — проверка наличия ключа
+    key_exists = any(
+        item["name"] == "Ключ"
+        for item in inventory
+    )
+
+    if key_exists:
+        # INDEX — поиск позиции ключа
+        names = [item["name"] for item in inventory]
+        position = names.index("Ключ")
+
+        print("Ключ найден! Его номер:", position + 1)
+        return True
+
+    print("Ключа в инвентаре нет.")
+    return False
+
+
+def upgrade_sword():
+    # Поиск меча
+    sword = next(
+        (item for item in inventory
+         if item["name"] == "Меч"),
+        None
+    )
+
+    if sword is None:
+        print("У вас нет меча!")
+        return
+
+    # Изменение свойства предмета
+    sword["mana"] = sword.get("mana", 0) + 10
+    sword["damage"] += 10
+
+    print("Меч улучшен!")
+    print("Новый урон:", sword["damage"])
+
+
+def copy_inventory():
+    print("\nДЕМОНСТРАЦИЯ КОПИРОВАНИЯ СПИСКОВ")
+
+    # Обычное присваивание создаёт ссылку,
+    # а не независимую копию
+    alias = inventory
+    print("alias is inventory:", alias is inventory)
+
+    # Поверхностная копия:
+    # вложенные словари остаются общими
+    shallow = copy(inventory)
+
+    # Срез создаёт поверхностную копию списка
+    sliced = inventory[:]
+
+    # Глубокая копия — независимые вложенные объекты
+    safe_copy = deepcopy(inventory)
+
+    print("Оригинал:", inventory)
+    print("Поверхностная копия:", shallow)
+    print("Копия через срез:", sliced)
+    print("Глубокая копия:", safe_copy)
+
+    if shallow:
+        old_damage = inventory[0].get("damage")
+        shallow[0]["demo"] = "изменено"
+
+        print("Изменение словаря в shallow видно в оригинале:",
+              inventory[0].get("demo") == "изменено")
+
+        # Убираем демонстрационное свойство
+        inventory[0].pop("demo", None)
+
+    if safe_copy:
+        safe_copy[0]["demo"] = "только в копии"
+
+        print("Изменение deepcopy затронуло оригинал:",
+              "demo" in inventory[0])
+
+    print("Демонстрация завершена.")
+
+
+# СОБЫТИЯ В КОМНАТАХ
+
+def enter_room():
+    global health_points, has_key, game_over
+
+    room = current_room()
+
+    if not room["visited"]:
+        room["visited"] = True
+
+        # APPEND — запись посещённой комнаты
+        visited_rooms.append((player_x, player_y))
+
+        show_room()
+
+        if room["type"] == "chest":
+            if room["items"]:
+                print("В сундуке есть предметы!")
+
+                # EXTEND — забираем все предметы
+                add_many_items(room["items"])
+                room["items"] = []
+            else:
+                print("Сундук оказался пустым.")
+
+        elif room["type"] == "monster":
+            print("Монстр нападает! Вы сражаетесь.")
+
+            damage = random.randint(10, 25)
+
+            sword = next(
+                (item for item in inventory
+                 if item["name"] == "Меч"),
+                None
+            )
+
+            if sword:
+                monster_hp = 30
+                monster_hp -= sword["damage"]
+
+                if monster_hp <= 0:
+                    print("Вы победили монстра!")
+                else:
+                    print("Монстр ещё сопротивляется.")
+                    health_points -= damage
+            else:
+                health_points -= damage
+                print("Без оружия вы получили урон:", damage)
+
+        elif room["type"] == "trap":
+            print("Ловушка активировалась!")
+            print("Вы теряете 20 здоровья.")
+            health_points -= 20
+
+        elif room["type"] == "key":
+            print("Вы нашли ключ!")
+            has_key = True
+
+            add_item({
+                "name": "Ключ",
+                "type": "ключ"
+            })
+
+        elif room["type"] == "portal":
+            print("Портал переносит вас в другую комнату!")
+
+            if room["portal_active"]:
+                portals = [
+                    r for r in rooms
+                    if r["type"] == "portal"
+                    and r is not room
+                    and r["portal_active"]
+                ]
+
+                if portals:
+                    destination = portals[0]
+
+                    # Отключаем оба портала,
+                    # чтобы избежать бесконечного перехода
+                    room["portal_active"] = False
+                    destination["portal_active"] = False
+
+                    global player_x, player_y
+                    player_x = destination["x"]
+                    player_y = destination["y"]
+
+                    print("Вы переместились в:",
+                          (player_x, player_y))
+
+                    enter_room()
+
+        elif room["type"] == "exit":
+            if has_key or find_key():
+                print("Ключ подходит к выходу!")
+                print("ПОЗДРАВЛЯЕМ! ВЫ ПОБЕДИЛИ!")
+                game_over = True
+            else:
+                print("Выход закрыт. Найдите ключ!")
+
+    if health_points <= 0:
+        print("Здоровье закончилось. Игра окончена.")
+        game_over = True
+
+
+# ПЕРЕМЕЩЕНИЕ
+
+def move(direction):
+    global player_x, player_y
+
+    new_x = player_x
+    new_y = player_y
+
+    if direction == "w":
+        new_y -= 1
+    elif direction == "s":
+        new_y += 1
+    elif direction == "a":
+        new_x -= 1
+    elif direction == "d":
+        new_x += 1
+    else:
+        print("Неизвестное направление.")
+        return
+
+    # Проверка границ лабиринта
+    if 0 <= new_x < SIZE and 0 <= new_y < SIZE:
+        player_x = new_x
+        player_y = new_y
+        enter_room()
+    else:
+        print("Стена! За пределы лабиринта выйти нельзя.")
+
+# ИСПОЛЬЗОВАНИЕ ПРЕДМЕТОВ
+
+def use_item():
+    global health_points
+
+    show_inventory()
+
+    if not inventory:
+        return
+
+    name = input("Введите название предмета: ")
+
+    # IN — проверяем, есть ли предмет
+    names = [item["name"] for item in inventory]
+
+    if name not in names:
+        print("Такого предмета нет.")
+        return
+
+    # INDEX — определяем позицию предмета
+    position = names.index(name)
+    item = inventory[position]
+
+    if item["name"] == "Зелье здоровья":
+        health_points = min(
+            max_health,
+            health_points + item.get("heal", 30)
+        )
+
+        # POP — удаляем использованное зелье
+        inventory.pop(position)
+
+        print("Вы восстановили здоровье!")
+
+    elif item["name"] == "Мана":
+        upgrade_sword()
+
+        # REMOVE — удаляем использованный материал
+        inventory.remove(item)
+
+    else:
+        print("Этот предмет нельзя использовать сейчас.")
+
+
+# ГЛАВНОЕ МЕНЮ
+
+def help_menu():
+    print("""
+КОМАНДЫ ИГРЫ:
+
+W - идти вверх
+S - идти вниз
+A - идти влево
+D - идти вправо
+
+I - открыть инвентарь
+M - показать карту
+U - использовать предмет
+B - выбросить предмет
+P - выбросить последний предмет
+T - сортировка инвентаря
+C - демонстрация копирования списков
+E - улучшить меч
+H - показать помощь
+Q - выйти из игры
+""")
+
+
+# ЗАПУСК
+
+print("=" * 40)
+print("       ЛАБИРИНТ СОКРОВИЩ")
+print("=" * 40)
+
+print("Ваша задача — найти ключ и выйти из лабиринта.")
+print("Начальная позиция:", (player_x, player_y))
+
+# Отмечаем стартовую комнату
+enter_room()
+
+help_menu()
+
+while not game_over:
+
+    show_status()
+
+    command = input("Введите команду: ").lower().strip()
+
+    if command in ["w", "a", "s", "d"]:
+        move(command)
+
+    elif command == "i":
+        show_inventory()
+
+    elif command == "m":
+        show_map()
+
+    elif command == "u":
+        use_item()
+
+    elif command == "b":
+        drop_item()
+
+    elif command == "p":
+        drop_last_item()
+
+    elif command == "t":
+        sort_inventory()
+
+    elif command == "c":
+        copy_inventory()
+
+    elif command == "e":
+        upgrade_sword()
+
+    elif command == "h":
+        help_menu()
+
+    elif command == "q":
+        print("Вы вышли из игры.")
+        break
+
+    else:
+        print("Неизвестная команда.")
+
+print("\nИГРА ЗАВЕРШЕНА")
+print("Посещено комнат:", len(visited_rooms))
+print("Всего комнат:", len(rooms))
