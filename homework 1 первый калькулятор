@@ -1,0 +1,25 @@
+a = int(input())
+b = int(input())
+d = str(input())
+if d == '+':
+    print(a + b)
+if d == '-':
+    print(a - b)
+if d == '*':
+    print(a * b)
+if d == '/':
+    if b == 0:
+        print("Division by zero!")
+    else:
+        print(a / b)
+if d == '%':
+    if b == 0:
+        print("Division by zero!")
+    else:
+        print(a % b)
+if d == '//':
+    if b == 0:
+        print("Division by zero!")
+    else:
+        print(a // b)
+
